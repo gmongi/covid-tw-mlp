@@ -7,11 +7,11 @@ since = "2020-11-01"
 until = "2020-11-05"
 max_results = 1
 flags = {
-    "--jsonl": None,
-    "--progress": None,
-    "--max-results": max_results,
-    "--since": since,
-    "twitter-search": '"(#Coronavirus) (from:LaPlataMLP) -filter:replies '
+    '--jsonl': None,
+    '--progress': None,
+    '--max-results': max_results,
+    '--since': since,
+    'twitter-search': '"(#Coronavirus) (from:LaPlataMLP) -filter:replies '
                       f'until:{until}"',
 
 }
