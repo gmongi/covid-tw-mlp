@@ -5,15 +5,17 @@ config = configparser.ConfigParser()
 config.read('config.ini')
 directory = config['DEFAULT']['ScrappedTweeetsDir']
 tw_account = config['DEFAULT']['TwitterAccount']
+max_results = config['DEFAULT']['MaxResults']
+date_since = config['DEFAULT']['DateSince']
 
 os.makedirs(directory, exist_ok=True)
 file_name = f"{directory}/{tw_account}-tweets"
-max_results = 1
+
 flags = {
     '--jsonl': None,
     '--progress': None,
     '--max-results': max_results,
-    '--since': config['DEFAULT']['DateSince'],
+    '--since': date_since,
     'twitter-search': f'"(#Coronavirus) (from:{tw_account}) -filter:replies"',
 }
 
