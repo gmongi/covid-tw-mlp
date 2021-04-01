@@ -1,7 +1,10 @@
 import os
 
+directory = "tweets"
+os.makedirs(directory, exist_ok=True)
+
 flags_placeholder = "[FLAGS]"
-file_name = "laplatamlp-tweets"
+file_name = f"{directory}/laplatamlp-tweets"
 base_command = f"snscrape {flags_placeholder} > {file_name}.json"
 since = "2020-11-01"
 until = "2020-11-05"
