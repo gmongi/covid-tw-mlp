@@ -1,11 +1,13 @@
+import configparser
 import os
 
-directory = "tweets"
-os.makedirs(directory, exist_ok=True)
+config = configparser.ConfigParser()
+config.read('config.ini')
+directory = config['DEFAULT']['ScrappedTweeetsDir']
+tw_account = config['DEFAULT']['TwitterAccount']
 
-flags_placeholder = "[FLAGS]"
-file_name = f"{directory}/laplatamlp-tweets"
-base_command = f"snscrape {flags_placeholder} > {file_name}.json"
+os.makedirs(directory, exist_ok=True)
+file_name = f"{directory}/{tw_account}-tweets"
 since = "2020-11-01"
 until = "2020-11-05"
 max_results = 1
@@ -14,13 +16,12 @@ flags = {
     '--progress': None,
     '--max-results': max_results,
     '--since': since,
-    'twitter-search': '"(#Coronavirus) (from:LaPlataMLP) -filter:replies '
+    'twitter-search': f'"(#Coronavirus) (from:{tw_account}) -filter:replies '
                       f'until:{until}"',
-
 }
 
 # Build command string
 parsed_flags = [f"{key} {value or ''} " for key, value in flags.items()]
-command = base_command.replace(flags_placeholder, "".join(parsed_flags))
+command = f"snscrape {''.join(parsed_flags)} > {file_name}.json"
 # Call snscrape via OS library
 os.system(command)
