@@ -1,6 +1,7 @@
 import configparser
 import json
 import os
+from datetime import date
 
 # Config setup
 config = configparser.ConfigParser()
@@ -8,9 +9,14 @@ config.read('config.ini')
 directory = config['DEFAULT']['ScrappedTweeetsDir']
 tw_account = config['DEFAULT']['TwitterAccount']
 max_results = config['DEFAULT']['MaxResults']
-date_since = config['DEFAULT']['DateSince']
+last_day_path = 'lastScrapped.tmp'
+if os.path.exists(last_day_path):
+    with open(last_day_path, 'r') as f:
+        date_since = f.read()
+else:
+    date_since = config['DEFAULT']['DateSince']
 
-# Files variables
+# Tweets directory and json file
 os.makedirs(directory, exist_ok=True)
 file_name = f"{directory}/{tw_account}-tweets.json"
 
@@ -37,5 +43,10 @@ with open(file_name) as f:
         tweet = json.loads(line)
         json_tweets.append(tweet)
 
+# Work with the tweets
 for tweet in json_tweets:
     print(tweet['content'])
+
+# Update last scrapped day
+with open(last_day_path, 'w') as f:
+    f.write(date.today().strftime('%Y-%m-%d'))
