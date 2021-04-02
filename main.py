@@ -62,13 +62,31 @@ with open(file_name) as f:
 for tweet in json_tweets:
     img_url = tweet['media'][0]['previewUrl']
     req = requests.get(img_url, allow_redirects=True)
-    # Crop total number of cases
     img_bytes = io.BytesIO(req.content)
     with Image.open(img_bytes) as img:
+        # Crop total number of cases
         cropped_img = img.crop((img.width * LEFT_RATIO,
                                 img.height * TOP_RATIO,
                                 img.width * RIGHT_RATIO,
                                 img.height * BOTTOM_RATIO))
+
+        # Swap colors
+        clr_thld = 60
+        red = 223
+        green = 10
+        blue = 128
+
+        # Pixel-by-pixel will do for now
+        width, height = cropped_img.size
+        for x in range(0, width):
+            for y in range(0, height):
+                pixel = cropped_img.getpixel((x, y))
+                if ((pixel[0] in range(red-clr_thld, red+clr_thld))
+                   & (pixel[1] in range(green-clr_thld, green+clr_thld))
+                   & (pixel[2] in range(blue-clr_thld, blue+clr_thld))):
+                    cropped_img.putpixel((x, y), (0, 0, 0))
+
+        # Save
         cropped_img.save(f'{img_dir}/{tweet["id"]}.jpg')
 
 # Update last scrapped day
