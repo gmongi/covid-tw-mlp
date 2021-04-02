@@ -1,9 +1,17 @@
 import configparser
+import io
 import json
 import os
 from datetime import date
 
 import requests
+from PIL import Image
+
+# Constants
+LEFT_RATIO = .342
+TOP_RATIO = .605
+RIGHT_RATIO = .480
+BOTTOM_RATIO = .703
 
 # Config setup
 config = configparser.ConfigParser()
@@ -54,8 +62,14 @@ with open(file_name) as f:
 for tweet in json_tweets:
     img_url = tweet['media'][0]['previewUrl']
     req = requests.get(img_url, allow_redirects=True)
-    with open(f'{img_dir}/{tweet["id"]}.jpg', 'wb') as f:
-        f.write(req.content)
+    # Crop total number of cases
+    img_bytes = io.BytesIO(req.content)
+    with Image.open(img_bytes) as img:
+        cropped_img = img.crop((img.width * LEFT_RATIO,
+                                img.height * TOP_RATIO,
+                                img.width * RIGHT_RATIO,
+                                img.height * BOTTOM_RATIO))
+        cropped_img.save(f'{img_dir}/{tweet["id"]}.jpg')
 
 # Update last scrapped day
 with open(last_day_path, 'w') as f:
