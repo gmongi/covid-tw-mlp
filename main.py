@@ -1,9 +1,11 @@
 import configparser
+import csv
 import io
 import json
 import os
 from datetime import date
 
+import pytesseract
 import requests
 from PIL import Image
 
@@ -88,6 +90,15 @@ for tweet in json_tweets:
 
         # Save
         cropped_img.save(f'{img_dir}/{tweet["date"][0:10]}.jpg')
+
+# OCR all collected images
+with open('accumulatedTotalCases.csv', 'w', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file)
+    csv_writer.writerow(['Date', 'CasesToDate'])
+    for img_file in os.listdir(img_dir):
+        img = Image.open(f'{img_dir}/{img_file}')
+        ocr_str = pytesseract.image_to_string(img)
+        csv_writer.writerow([img_file[0:10], ocr_str.strip()])
 
 # Update last scrapped day
 with open(last_day_path, 'w') as f:
