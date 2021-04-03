@@ -4,8 +4,9 @@ import io
 import json
 import os
 import re
-from datetime import date
 
+import cv2
+import numpy as np
 import pytesseract
 import requests
 from PIL import Image
@@ -67,16 +68,6 @@ for tweet in json_tweets:
         green = 10
         blue = 128
 
-        # Pixel-by-pixel will do for now
-        width, height = img.size
-        for x in range(0, width):
-            for y in range(0, height):
-                pixel = img.getpixel((x, y))
-                if ((pixel[0] in range(red-clr_thld, red+clr_thld))
-                   & (pixel[1] in range(green-clr_thld, green+clr_thld))
-                   & (pixel[2] in range(blue-clr_thld, blue+clr_thld))):
-                    img.putpixel((x, y), (0, 0, 0))
-
         # Save
         img.save(f'{img_dir}/{tweet["date"][0:10]}.jpg')
 
@@ -86,7 +77,15 @@ with open('accumulatedTotalCases.csv', 'w', newline='') as csv_file:
     csv_writer.writerow(['Date', 'CasesToDate'])
     pattern = re.compile(r'.*CONFIRMADOS TOTALES\s*(\d+\.*\d*)')
     for img_file in os.listdir(img_dir):
-        img = Image.open(f'{img_dir}/{img_file}')
+        img = cv2.imread(f'{img_dir}/{img_file}')
+        img = cv2.resize(img, None, fx=1.2, fy=1.2, interpolation=cv2.INTER_CUBIC)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        kernel = np.ones((2, 2), np.uint8)
+        img = cv2.dilate(img, kernel, iterations=1)
+        img = cv2.erode(img, kernel, iterations=1)
+        img = cv2.threshold(cv2.bilateralFilter(img, 5, 75, 75), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+        cv2.imwrite(f'{img_dir}/{img_file}', img)
+
         ocr_str = pytesseract.image_to_string(img, config='--psm 6')
         search = pattern.search(ocr_str)
         if (search):
@@ -94,7 +93,3 @@ with open('accumulatedTotalCases.csv', 'w', newline='') as csv_file:
         else:
             total_cases = 'Error'
         csv_writer.writerow([img_file[0:10], total_cases])
-
-# Update last scrapped day
-with open(last_day_path, 'w') as f:
-    f.write(date.today().strftime('%Y-%m-%d'))
