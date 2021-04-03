@@ -32,7 +32,7 @@ os.makedirs(img_dir, exist_ok=True)
 
 # Tweets directory and json file
 os.makedirs(tw_dir, exist_ok=True)
-file_name = f"{tw_dir}/{tw_account}-tweets.json"
+tw_file_name = f"{tw_dir}/{tw_account}-tweets.json"
 
 # Command flags
 flags = {
@@ -45,14 +45,14 @@ flags = {
 
 # Build command string
 parsed_flags = [f"{key} {value or ''} " for key, value in flags.items()]
-command = f"snscrape {''.join(parsed_flags)} > {file_name}"
+command = f"snscrape {''.join(parsed_flags)} > {tw_file_name}"
 
 # Call snscrape via OS library
 os.system(command)
 
 # Read the json file we just scraped
 json_tweets = []
-with open(file_name) as f:
+with open(tw_file_name) as f:
     for line in f:
         tweet = json.loads(line)
         json_tweets.append(tweet)
@@ -87,7 +87,7 @@ for tweet in json_tweets:
                     cropped_img.putpixel((x, y), (0, 0, 0))
 
         # Save
-        cropped_img.save(f'{img_dir}/{tweet["id"]}.jpg')
+        cropped_img.save(f'{img_dir}/{tweet["date"][0:10]}.jpg')
 
 # Update last scrapped day
 with open(last_day_path, 'w') as f:
