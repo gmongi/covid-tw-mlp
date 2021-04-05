@@ -1,0 +1,6 @@
+[DEFAULT]
+ScrappedTweeetsDir = tweets
+ImageDownloadDir = images
+TwitterAccount = LaPlataMLP
+DateSince = 2021-04-03
+MaxResults = 999

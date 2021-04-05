@@ -151,3 +151,4 @@ tweets/
 images/
 *.tmp
 *.csv
+config.ini
