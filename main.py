@@ -1,3 +1,6 @@
+'''
+main.py
+'''
 import argparse
 import csv
 import os
@@ -37,6 +40,8 @@ TW_FILENAME = f'{TW_PATH}/{TW_ACCOUNT}-tweets.json'
 
 
 def main():
+    """ Main function """
+
     # Command flags
     flags = {
         '--jsonl': None,
@@ -62,23 +67,23 @@ def main():
         date = img_file[0:10]
         img = cv2.imread(get_image_path(IMG_PATH, img_file))
         if img is None:
-            raise Exception(f'Image: {get_image_path(IMG_PATH, img_file)} does not exists')                
+            raise Exception(f'Image: {get_image_path(IMG_PATH, img_file)} does not exists')
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         img = cv2.bitwise_not(img)
         _, thrash = cv2.threshold(img, 120, 255, cv2.THRESH_BINARY)
         contours, _ = cv2.findContours(thrash, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         img_cropped = None
-        for contour in contours:            
-            approx = cv2.approxPolyDP(contour, 0.01* cv2.arcLength(contour, True), True)
+        for contour in contours:
+            approx = cv2.approxPolyDP(contour, 0.01 * cv2.arcLength(contour, True), True)
             cv2.drawContours(img, [approx], 0, (0, 0, 0), 5)
             x = approx.ravel()[0]
             y = approx.ravel()[1] - 5
             if len(approx) == 4:
-                x ,y, w, h = cv2.boundingRect(approx)
+                x, y, w, h = cv2.boundingRect(approx)
                 aspect_ratio = float(w)/h
-                if (not(aspect_ratio >= 0.95 and aspect_ratio <= 1.05) and
-                    w < WIDTH_VALUES[0] and w > WIDTH_VALUES[1] and
-                    h < HEIGHT_VALUES[0] and h > HEIGHT_VALUES[1]):
+                if (not(0.95 <= aspect_ratio <= 1.05) and
+                   WIDTH_VALUES[1] < w < WIDTH_VALUES[0] and
+                   HEIGHT_VALUES[1] < h < HEIGHT_VALUES[0]):
                     new_y = y+MARGIN_RESIZE_VALUES[0]
                     new_x = x+MARGIN_RESIZE_VALUES[0]
                     new_h = y+h-MARGIN_RESIZE_VALUES[1]
@@ -93,7 +98,7 @@ def main():
         except ValueError:
             total_cases = OCR_ERROR
         results.append({'date': date, 'total_cases': total_cases})
-    results = sorted(results, key = lambda res: res['date'])
+    results = sorted(results, key=lambda res: res['date'])
 
     with open(RESULTS_FILE, 'w', newline='') as csv_file:
         keys = results[0].keys()

@@ -28,7 +28,6 @@ def load_tweets_file(filename: str) -> list:
     return tweets
 
 
-
 def save_tweet_image(img_path: str, tweet: dict):
     """
     Get image from a tweet
